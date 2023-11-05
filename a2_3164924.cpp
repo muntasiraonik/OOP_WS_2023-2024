@@ -143,20 +143,22 @@ consumer *move_up(consumer *firstConsumer, int k)
     consumer *currentConsumer = firstConsumer->next;
     int position = 2;
 
-    while (currentConsumer != nullptr)
+    while (currentConsumer != nullptr && position < k)
     {
-        if (position == k)
-        {
-            prevConsumer->next = currentConsumer->next;
-            currentConsumer->next = prevConsumer->next;
-            prevConsumer->next = currentConsumer;
-            return firstConsumer;
-        }
-
         prevConsumer = currentConsumer;
         currentConsumer = currentConsumer->next;
         position++;
     }
+
+    if (currentConsumer == nullptr)
+    {
+        // k is greater than the number of consumers in the list, so no change is needed.
+        return firstConsumer;
+    }
+
+    prevConsumer->next = currentConsumer->next;
+    currentConsumer->next = prevConsumer;
+    firstConsumer->next = currentConsumer;
 
     return firstConsumer;
 }
