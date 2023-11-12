@@ -11,8 +11,8 @@ Study program/Course of studies: Computer Engineering ISE, Vert. Software Engine
 #include <iomanip>
 using namespace std;
 
-const int number_of_days_in_a_year = 365;
-const int number_of_qh_intervals_in_a_day = 96;
+const int number_of_days_in_a_year = 10;
+const int number_of_qh_intervals_in_a_day = 12;
 
 enum Use
 {
@@ -125,7 +125,7 @@ year operator+(year &f, year &s)
     }
 }
 
-void add_consumption(year &y, int day, int from_hour, int from_minute, int to_hour, int to_minute, float wattage)
+void add_consumption(year &y, int day, int from_hour, int from_minute, int to_hour, int to_minute, float watt)
 {
     int from_minute_of_day = time(from_hour, from_minute);
     int to_minute_of_day = time(to_hour, to_minute);
@@ -133,11 +133,11 @@ void add_consumption(year &y, int day, int from_hour, int from_minute, int to_ho
     for (int minute = from_minute_of_day; minute < to_minute_of_day; ++minute)
     {
         int interval = minute / 15;
-        y.data[day][interval] += wattage / 60.0;
+        y.data[day][interval] += watt / 60.0;
     }
 }
 
-void add_consumption(year &y, Use frequency, int from_hour, int from_minute, int to_hour, int to_minute, float wattage)
+void add_consumption(year &y, Use frequency, int from_hour, int from_minute, int to_hour, int to_minute, float watt)
 {
     switch (frequency)
     {
@@ -150,16 +150,16 @@ void add_consumption(year &y, Use frequency, int from_hour, int from_minute, int
     case sunday:
         for (int day = frequency; day < number_of_days_in_a_year; day += 7)
         {
-            add_consumption(y, day, from_hour, from_minute, to_hour, to_minute, wattage);
+            add_consumption(y, day, from_hour, from_minute, to_hour, to_minute, watt);
         }
         break;
     case once:
-        add_consumption(y, 0, from_hour, from_minute, to_hour, to_minute, wattage);
+        add_consumption(y, 0, from_hour, from_minute, to_hour, to_minute, watt);
         break;
     case daily:
         for (int day = 0; day < number_of_days_in_a_year; ++day)
         {
-            add_consumption(y, day, from_hour, from_minute, to_hour, to_minute, wattage);
+            add_consumption(y, day, from_hour, from_minute, to_hour, to_minute, watt);
         }
         break;
     case mo_fr:
@@ -170,7 +170,7 @@ void add_consumption(year &y, Use frequency, int from_hour, int from_minute, int
             if (dayOfWeek >= 0 && dayOfWeek <= 4)
             {
 
-                add_consumption(y, day, from_hour, from_minute, to_hour, to_minute, wattage);
+                add_consumption(y, day, from_hour, from_minute, to_hour, to_minute, watt);
             }
         }
         break;
@@ -181,7 +181,7 @@ void add_consumption(year &y, Use frequency, int from_hour, int from_minute, int
             int dayOfWeek = days[day % 7];
             if (dayOfWeek == 5 || dayOfWeek == 6)
             {
-                add_consumption(y, day, from_hour, from_minute, to_hour, to_minute, wattage);
+                add_consumption(y, day, from_hour, from_minute, to_hour, to_minute, watt);
             }
         }
         break;
@@ -305,9 +305,9 @@ int main()
         case 'c':
 
             cout << "sum actual = " << fixed << setprecision(2) << sum(actual)
-                 << " Watt. (costs: " << (sum(actual) / 1000) * price_of_one_kilowatt << " EUR)" << endl;
+                 << " Watt (costs: " << (sum(actual) / 1000) * price_of_one_kilowatt << " EUR)" << endl;
             cout << "sum total = " << fixed << setprecision(2) << sum(total)
-                 << " Watt. (costs: " << (sum(total) / 1000) * price_of_one_kilowatt << " EUR)" << endl;
+                 << " Watt (costs: " << (sum(total) / 1000) * price_of_one_kilowatt << " EUR)" << endl;
             break;
         case 'o':
             cout << actual;
