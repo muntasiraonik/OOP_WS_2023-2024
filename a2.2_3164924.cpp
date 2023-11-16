@@ -167,7 +167,7 @@ consumer *move_up(consumer *firstConsumer, int k)
 
 void print_consumer(consumer *consumer1, int number)
 {
-    cout << setw(column_width) << number << ": " << right << consumer1->description << " (at address: " << (void *)&consumer1 << ")" << endl;
+    cout << setw(column_width) << number << ": " << right << consumer1->description << " (at address: " << &consumer1 << ")" << endl;
     cout << setw(column_width) << "power consumption "
          << ": " << right << consumer1->watt << " W" << endl;
 
@@ -199,7 +199,7 @@ void print_household(household *household1, float price_of_one_kilowatt, int hou
     cout << "-------------------------------------------------- --------------------" << endl;
     cout << setw(column_width) << "city"
          << ": " << right << household1->city
-         << " (at address: " << (void *)&household1->city << ")" << endl;
+         << " (at address: " << &household1->city << ")" << endl;
 
     cout << setw(column_width) << "price for one kWh"
          << ": " << fixed << setprecision(2) << right << price_of_one_kilowatt * 100 << " ct/kWh" << endl;
@@ -301,6 +301,8 @@ household *copy_consumers(const household *source, household *destination)
         sourceConsumer = sourceConsumer->next;
     }
 
+    /* cout << newConsumerList->description << endl; */
+
 
     consumer *destinationConsumer = destination->consumers;
     while (destinationConsumer != nullptr)
@@ -316,6 +318,8 @@ household *copy_consumers(const household *source, household *destination)
 
         destinationConsumer = destinationConsumer->next;
     }
+
+    /* cout << newConsumerList->description << endl; */
 
    
 
