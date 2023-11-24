@@ -40,9 +40,9 @@ string useToString(Use use)
     case daily:
         return "daily";
     case mo_fr:
-        return "mo_fr";
+        return "Monday to Friday";
     case sa_su:
-        return "sa_su";
+        return "Saturday and Sunday";
     case weekly:
         return "weekly";
     default:
@@ -290,8 +290,9 @@ void print_household(household *household1, float price_of_one_kilowatt, int hou
     currentConsumer = household1->consumers;
     while (currentConsumer != nullptr)
     {
-        cout << "worked" << endl;
+        // cout << "worked" << endl;
         total_consumption += annual_kWh(currentConsumer);
+        // cout << total_consumption << endl;
         currentConsumer = currentConsumer->next;
     }
 
@@ -432,7 +433,7 @@ void read_from_file(const string &filename, char separator, household *household
     string line;
     while (getline(inFile, line))
     {
-        cout << "Read line: " << line << endl;
+        // cout << "Read line: " << line << endl;
         if (line.find("A4") != string::npos)
         {
 
@@ -541,10 +542,12 @@ void read_from_file(const string &filename, char separator, household *household
             getline(iss, watt_str, ';');
             getline(iss, watt_standby_str, ';');
 
-             int hours = stoi(hours_str);
-              int watt = stoi(watt_str);
-               int watt_standby = stoi(watt_standby_str);
+            // cout << hours_str << endl;
 
+            double hours = stod(hours_str);
+            double watt = stod(watt_str);
+            double watt_standby = stod(watt_standby_str);
+            // cout << hours << endl;
             consumer *consumer1 = new consumer;
             consumer1->next = nullptr;
             consumer1->description = description;
@@ -575,6 +578,8 @@ void read_from_file(const string &filename, char separator, household *household
             }
 
             consumer1->hours = hours;
+
+            // cout << hours << endl;
 
             add_consumer_to_household(households[current_index_to_insert], consumer1);
         }
