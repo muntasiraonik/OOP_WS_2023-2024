@@ -19,7 +19,6 @@ const int annual_average_psm = 9.0;
 const int annual_average_ped = 200;
 const int annual_avverage_cpp_with_ewh = 550;
 const int column_width = 35;
-float price_of_one_kilowatt = 0;
 int number_household;
 
 enum Use
@@ -102,6 +101,8 @@ struct household
     int sqr;
     bool hot_water_electric;
     consumer *consumers;
+    float power_price;
+    string power_suplier;
 };
 
 void add_consumer_to_household(household *household1, consumer *consumer1)
@@ -114,21 +115,19 @@ void add_consumer_to_household(household *household1, consumer *consumer1)
 
     consumer1->next = nullptr;
 
- 
     if (household1->consumers == nullptr)
     {
         household1->consumers = consumer1;
     }
     else
     {
-       
+
         consumer *lastConsumer = household1->consumers;
         while (lastConsumer->next != nullptr)
         {
             lastConsumer = lastConsumer->next;
         }
 
-        
         lastConsumer->next = consumer1;
     }
 }
@@ -204,7 +203,7 @@ consumer *move_up(consumer *firstConsumer, int k)
     return firstConsumer;
 }
 
-void print_consumer(consumer *consumer1, int number)
+void print_consumer(consumer *consumer1, int number, float powerPrice)
 {
     cout << setw(column_width) << number << ": " << right << consumer1->description << " (at address: " << &consumer1 << ")" << endl;
     cout << setw(column_width) << "power consumption "
@@ -223,7 +222,7 @@ void print_consumer(consumer *consumer1, int number)
          << ": " << right << annual_kWh(consumer1) << " kWh" << endl;
 
     cout << setw(column_width) << "annual costs "
-         << ": " << right << annual_kWh(consumer1) * price_of_one_kilowatt << " EUR" << endl;
+         << ": " << right << annual_kWh(consumer1) * powerPrice << " EUR" << endl;
 }
 
 void print_household(household *household1, float price_of_one_kilowatt, int household_number)
@@ -241,7 +240,10 @@ void print_household(household *household1, float price_of_one_kilowatt, int hou
          << " (at address: " << &household1->city << ")" << endl;
 
     cout << setw(column_width) << "price for one kWh"
-         << ": " << fixed << setprecision(2) << right << price_of_one_kilowatt * 100 << " ct/kWh" << endl;
+         << ": " << fixed << setprecision(2) << right << household1->power_price * 100 << " ct/kWh" << endl;
+
+    cout << setw(column_width) << "power supplier"
+         << ": " << fixed << setprecision(2) << right << household1->power_suplier << "" << endl;
 
     cout << setw(column_width) << "square meters"
          << ": " << right << household1->sqr << " sqm" << endl;
@@ -262,7 +264,7 @@ void print_household(household *household1, float price_of_one_kilowatt, int hou
     while (currentConsumer != nullptr)
     {
 
-        print_consumer(currentConsumer, consumerNumber);
+        print_consumer(currentConsumer, consumerNumber, household1->power_price);
         currentConsumer = currentConsumer->next;
         consumerNumber++;
     }
@@ -319,6 +321,12 @@ void input_household(household *household)
     cin >> hot_water_choice;
 
     household->hot_water_electric = (hot_water_choice == 'y');
+
+    cout << "what is the price for one kWh in EUR? ";
+    cin >> household->power_price;
+
+    cout << "who is the power supplier? ";
+    cin >> household->power_suplier;
     household->consumers = nullptr;
 }
 
@@ -378,7 +386,7 @@ household *copy_consumers(const household *source, household *destination)
     return destination;
 }
 
-void write_to_file(const string &filename, char separator, household *households[], string &city, double powerPrice)
+void write_to_file(const string &filename, char separator, household *households[], string &city)
 {
     ofstream outFile(filename);
 
@@ -390,7 +398,7 @@ void write_to_file(const string &filename, char separator, household *households
 
     cout << "output file \"" << filename << "\" opened..." << endl;
 
-    outFile << "A4" << separator << number_household << separator << households[0]->city << separator << price_of_one_kilowatt << "\n";
+    outFile << "A4" << separator << number_household << separator << households[0]->city << "\n";
 
     for (int i = 0; i < number_household; ++i)
     {
@@ -398,7 +406,7 @@ void write_to_file(const string &filename, char separator, household *households
         {
             outFile << "household" << separator << i << separator << households[i]->city << separator
                     << (households[i]->hot_water_electric ? "true" : "false") << separator
-                    << households[i]->people << separator << households[i]->sqr << "\n";
+                    << households[i]->people << separator << households[i]->sqr << separator << households[i]->power_price << separator << households[i]->power_suplier << "\n";
 
             consumer *currentConsumer = households[i]->consumers;
             while (currentConsumer != nullptr)
@@ -428,30 +436,31 @@ void read_from_file(const string &filename, char separator, household *household
         return;
     }
 
+    cout << "input file \"" << filename << "\" opened..." << endl;
+
     int current_index_to_insert;
 
     string line;
+    char characterAfterA4;
     while (getline(inFile, line))
     {
         // cout << "Read line: " << line << endl;
         if (line.find("A4") != string::npos)
         {
-
+            characterAfterA4 = line[2];
+            // cout << characterAfterA4 << endl;
             istringstream iss(line);
             string task_name;
             string max_households_str;
             string city;
-            string power_price_str;
+            
+           
 
             getline(iss, task_name, separator);
             getline(iss, max_households_str, separator);
             getline(iss, city, separator);
-            getline(iss, power_price_str, separator);
-
-            
-            int max_households = stoi(max_households_str);
-            double power_price = stod(power_price_str);
-
+             
+            int max_households = stod(max_households_str);
             if (max_households > number_household)
             {
                 cerr << "file contains up to " << max_households << " households, but here only " << number_household << " are supported" << endl;
@@ -459,27 +468,32 @@ void read_from_file(const string &filename, char separator, household *household
                 return;
             }
 
-            number_household = max_households;
+            // number_household = max_households;
 
             for (int i = 0; i < number_household; ++i)
             {
                 households[i]->consumers = nullptr;
                 households[i]->city = city;
-                price_of_one_kilowatt = power_price;
             }
         }
 
         if (line.find("household") != string::npos)
         {
 
+            // cout << "i'm on household" << endl;
+
+
+            // household|2|Bergisch Gladbach|true|5|200|0.3|Yello Strom
+
             istringstream iss(line);
             string type;
-            char separator;
             string householdNumberStr;
             string city;
             string hotWaterElectricStr;
             string numberOfPeopleStr;
             string squareMetersStr;
+            string powerPriceStr;
+            string powerSupplier;
 
             getline(iss, type, separator);
             getline(iss, householdNumberStr, separator);
@@ -487,11 +501,16 @@ void read_from_file(const string &filename, char separator, household *household
             getline(iss, hotWaterElectricStr, separator);
             getline(iss, numberOfPeopleStr, separator);
             getline(iss, squareMetersStr, separator);
+            getline(iss, powerPriceStr, separator);
+            getline(iss, powerSupplier, separator);
 
-            int householdNumber = stoi(householdNumberStr);
+          
+
+            int householdNumber = stod(householdNumberStr);
             bool hotWaterElectric = (hotWaterElectricStr == "true");
-            int numberOfPeople = stoi(numberOfPeopleStr);
-            int squareMeters = stoi(squareMetersStr);
+            int numberOfPeople = stod(numberOfPeopleStr);
+            int squareMeters = stod(squareMetersStr);
+            float powerPrice = stod(powerPriceStr);
 
             current_index_to_insert = householdNumber;
 
@@ -515,6 +534,8 @@ void read_from_file(const string &filename, char separator, household *household
             households[householdNumber]->city = city;
             households[householdNumber]->people = numberOfPeople;
             households[householdNumber]->hot_water_electric = hotWaterElectric;
+            households[householdNumber]->power_price = powerPrice;
+            households[householdNumber]->power_suplier = powerSupplier;
 
             for (int i = 0; i < number_household; ++i)
             {
@@ -526,9 +547,11 @@ void read_from_file(const string &filename, char separator, household *household
         if (line.find("consumer") != string::npos)
         {
 
+
+            //  cout << "i'm on consumer" << endl;
+
             istringstream iss(line);
             string type;
-            char separator;
             string description;
             string hours_str;
             string use;
@@ -604,9 +627,6 @@ int main()
     cout << "in which city is the household located? ";
     cin >> city;
 
-    cout << "what is the price for one kWh in EUR? ";
-    cin >> price_of_one_kilowatt;
-
     for (int i = 0; i < number_household; ++i)
     {
         households[i] = new household;
@@ -673,7 +693,7 @@ int main()
 
             if (household_index >= 0 && household_index < number_household)
             {
-                print_household(households[household_index], price_of_one_kilowatt, households[household_index]->household_number);
+                print_household(households[household_index], households[household_index]->power_price, households[household_index]->household_number);
             }
         }
         break;
@@ -725,7 +745,7 @@ int main()
             {
                 if (households[i]->household_number)
                 {
-                    print_household(households[i], price_of_one_kilowatt, households[i]->household_number);
+                    print_household(households[i], households[i]->power_price, households[i]->household_number);
                 }
             }
             break;
@@ -748,7 +768,7 @@ int main()
             cin >> filename;
             cout << "Enter separator character: ";
             cin >> separator;
-            write_to_file(filename, separator, households, city, price_of_one_kilowatt);
+            write_to_file(filename, separator, households, city);
             break;
         }
         case 'r':

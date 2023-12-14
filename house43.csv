@@ -1,0 +1,14 @@
+A4|6|Bergisch Gladbach
+household|2|Bergisch Gladbach|true|5|200|0.3|Yello Strom
+consumer|Washing Machine|2|weekly|2000|0
+consumer|Office PC|8.5|Monday to Friday|200|0.5
+consumer|Router|24|daily|10|0
+household|3|Bergisch Gladbach|false|2|100|0.4|Stadtwerke
+consumer|Dish Washer|3.5|daily|250|0
+consumer|LED TV|2|Saturday and Sunday|70|0.5
+household|4|Bergisch Gladbach|true|2|50|0.5|RWE
+consumer|Dish Washer|3.5|daily|250|0
+consumer|LED TV|2|Saturday and Sunday|70|0.5
+consumer|Washing Machine|2|weekly|2000|0
+consumer|Office PC|8.5|Monday to Friday|200|0.5
+consumer|Router|24|daily|10|0
