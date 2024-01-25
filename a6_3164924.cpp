@@ -268,7 +268,7 @@ public:
 
     virtual Device *get_a_copy() const override
     {
-        Immobile *copy = new Immobile(*this); 
+        Immobile *copy = new Immobile(*this);
         return copy;
     }
     virtual string get_string_for_file(char separator) const override
@@ -371,7 +371,7 @@ public:
 
     virtual Device *get_a_copy() const override
     {
-        return new Mobile(*this); 
+        return new Mobile(*this);
     }
 
     virtual string get_string_for_file(char separator) const override
@@ -565,7 +565,6 @@ public:
         return devices;
     }
 
-
     void add_device_to_household(Device *device)
     {
         if (device == nullptr)
@@ -576,12 +575,12 @@ public:
 
         if (devices == nullptr)
         {
-          
+
             devices = device;
         }
         else
         {
-            
+
             Device *current = devices;
             while (current->get_next() != nullptr)
             {
@@ -591,84 +590,81 @@ public:
         }
     }
 
-
-
-void set_device_list_head(Device *newHead) {
-    devices = newHead;
-}
-
-void reverse_list(Device **head) {
-    Device *prev = nullptr, *current = *head, *next = nullptr;
-    while (current != nullptr) {
-        next = current->get_next();  
-        current->set_next(prev);   
-        prev = current;         
-        current = next;
+    void set_device_list_head(Device *newHead)
+    {
+        devices = newHead;
     }
-    *head = prev;
-}
 
-void copy_devices(const Household *source, Household *destination) {
-    Device *sourceDevice = source->get_devices();
-
-   
-    reverse_list(&sourceDevice);
-
-    while (sourceDevice != nullptr) {
-        Device *newDevice = sourceDevice->get_a_copy();
-        // cout << newDevice->get_description() << endl;
-
-        Device *currentHead = destination->get_devices();
-        newDevice->set_next(currentHead);
-
-       
-        destination->set_device_list_head(newDevice);
-
-      
-        sourceDevice = sourceDevice->get_next();
+    void reverse_list(Device **head)
+    {
+        Device *prev = nullptr, *current = *head, *next = nullptr;
+        while (current != nullptr)
+        {
+            next = current->get_next();
+            current->set_next(prev);
+            prev = current;
+            current = next;
+        }
+        *head = prev;
     }
-}
 
+    void copy_devices(const Household *source, Household *destination)
+    {
+        Device *sourceDevice = source->get_devices();
 
- 
+        reverse_list(&sourceDevice);
+
+        while (sourceDevice != nullptr)
+        {
+            Device *newDevice = sourceDevice->get_a_copy();
+            // cout << newDevice->get_description() << endl;
+
+            Device *currentHead = destination->get_devices();
+            newDevice->set_next(currentHead);
+
+            destination->set_device_list_head(newDevice);
+
+            sourceDevice = sourceDevice->get_next();
+        }
+    }
+
     Device *move_up(int k)
     {
         if (devices == nullptr || k <= 1)
-    {
+        {
+            return devices;
+        }
+
+        Device *prevPrev = nullptr;
+        Device *prev = devices;
+        Device *current = devices->get_next();
+
+        for (int pos = 2; current != nullptr && pos < k; ++pos)
+        {
+            prevPrev = prev;
+            prev = current;
+            current = current->get_next();
+        }
+
+        if (current == nullptr || prev == nullptr)
+        {
+            return devices;
+        }
+
+        if (prevPrev != nullptr)
+        {
+            prevPrev->set_next(current);
+        }
+        else
+        {
+
+            devices = current;
+        }
+
+        prev->set_next(current->get_next());
+        current->set_next(prev);
+
         return devices;
-    }
-
-    Device *prevPrev = nullptr;
-    Device *prev = devices;
-    Device *current = devices->get_next();
-
-    for (int pos = 2; current != nullptr && pos < k; ++pos)
-    {
-        prevPrev = prev;
-        prev = current;
-        current = current->get_next();
-    }
-
-    if (current == nullptr || prev == nullptr)
-    {
-        return devices;
-    }
-
-    
-    if (prevPrev != nullptr)
-    {
-        prevPrev->set_next(current);
-    }
-    else
-    {
-        
-        devices = current;
-    }
-
-    prev->set_next(current->get_next());
-    current->set_next(prev);
-
-    return devices;
     }
 
     void add_consumer_to_end(Consumer *newConsumer)
@@ -766,7 +762,7 @@ void copy_devices(const Household *source, Household *destination) {
 
         while (currentDevice != nullptr)
         {
-           
+
             Consumer *currentConsumer = dynamic_cast<Consumer *>(currentDevice);
             if (currentConsumer != nullptr)
             {
@@ -1005,7 +1001,7 @@ public:
 
                 Address address(street, houseno, zip, city);
 
-                if (house != nullptr)
+                if (house == nullptr)
                 {
                     int number_of_households = stoi(totalHousehold);
                     house = new House(number_of_households, address);
@@ -1212,7 +1208,7 @@ int main()
         case 'd':
         {
             delete house;
-            house = nullptr; 
+            house = nullptr;
             break;
         }
 
@@ -1395,9 +1391,7 @@ int main()
                 Household *sourceHousehold = house->get_household(source_household);
                 Household *destinationHousehold = house->get_household(destination_household);
 
-                 destinationHousehold->copy_devices(sourceHousehold, destinationHousehold);
-
-                
+                destinationHousehold->copy_devices(sourceHousehold, destinationHousehold);
             }
             else
             {
@@ -1427,15 +1421,7 @@ int main()
             cin >> filename;
             cout << "input separator character: ";
             cin >> separator;
-
-            if (house == nullptr)
-            {
-                cout << "house is a nullptr, please first choose h to initialise a new house" << endl;
-            }
-            else
-            {
-                house->read_from_file(house, filename, separator);
-            }
+            house->read_from_file(house, filename, separator);
 
             break;
         }
