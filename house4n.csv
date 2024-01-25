@@ -6,7 +6,7 @@ household|2|true|5|200|0.3|Yello Strom
 Solar|balcony power plant|2023|600
 household|3|false|2|100|0.4|Stadtwerke
 Solar|balcony power plant|2022|0.8
-household|4|true|2|50|0.5|RWE
+household|4|true|2|50|0.5|rwe
 Solar|balcony power plant|2022|0.8
 Mobile|E-SUV|100|Monday to Friday|18000
 Immobile|Dish Washer|3.5|1|250|0
